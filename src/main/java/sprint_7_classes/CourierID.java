@@ -1,3 +1,5 @@
+package sprint_7_classes;
+
 public class CourierID {
     public Integer getId() {
         return id;

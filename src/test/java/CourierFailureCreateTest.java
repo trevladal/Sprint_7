@@ -1,33 +1,36 @@
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
+import sprint_7_classes.CourierAPI;
 
-import static io.restassured.RestAssured.given;
-
-public class CourierFailureCreateTest extends AbstractCreatingCourierTest {
-
+public class CourierFailureCreateTest extends AbstractCourierData {
+    private final CourierAPI courierAPI = new CourierAPI();
 
     @Before
     public void setUp() {
         RestAssured.baseURI = BASE_URI;
     }
+
     @Test
-    public void checkFailureCreatingCourierWithoutFields() {
-        Courier courierWithoutPassword = new Courier(login, "", "");
+    public void checkFailureCreatingCourierWithoutPass() {
 
-        given()
-                .header("Content-type", "application/json")
-                .body(courierWithoutPassword)
-                .post(COURIER_PATH)
-                .then()
-                .statusCode(400);
+        Response responseNewCourierWithoutPass = courierAPI.creatingCourier(login, "", firstName);
 
-        Courier courierWithoutLogin = new Courier("", password, "");
-        given()
-                .header("Content-type", "application/json")
-                .body(courierWithoutLogin)
-                .post(COURIER_PATH)
+        responseNewCourierWithoutPass
                 .then()
                 .statusCode(400);
     }
+
+    @Test
+    public void checkFailureCreatingCourierWithoutLogin() {
+
+        Response responseNewCourierWithoutLogin = courierAPI.creatingCourier("", password, firstName);
+
+        responseNewCourierWithoutLogin
+                .then()
+                .statusCode(400);
+    }
+
 }
+

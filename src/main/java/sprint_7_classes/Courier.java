@@ -1,3 +1,5 @@
+package sprint_7_classes;
+
 public class Courier  {
     private String login;
     private String password;

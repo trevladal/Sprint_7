@@ -1,28 +1,30 @@
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import sprint_7_classes.CourierAPI;
+import sprint_7_classes.CourierID;
 
-import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
 
-public class LoginCourierTest extends AbstractCreatingCourierTest {
+public class LoginCourierTest extends AbstractCourierData {
+
+    private final CourierAPI courierAPI = new CourierAPI();
+
     @Before
     public void setUp() {
         RestAssured.baseURI = BASE_URI;
-        Courier courier = new Courier(login, password, firstName);
-
-        given()
-                .header("Content-type", "application/json")
-                .body(courier)
-                .post(COURIER_PATH);
 
     }
 
     @Test
     public void checkSuccessfulCourierAuthorization() {
 
-        CourierID courierID = login(login, password, 200);
+        courierAPI.creatingCourier(login, password, firstName);
+
+        Response response = courierAPI.loginCourier(login, password, firstName);
+        CourierID courierID = response.body().as(CourierID.class);
         assertNotNull(courierID.getId());
 
     }
@@ -30,32 +32,30 @@ public class LoginCourierTest extends AbstractCreatingCourierTest {
     @Test
     public void checkFailureCourierAuthorization() {
 
-        login(login, "", 400);
 
-        login("", password, 400);
+        courierAPI.creatingCourier(login, password, firstName);
 
-        login(login, "gdsft4353", 404);
+        Response responseAuthorizationWithoutPass =
+                courierAPI.loginCourier(login, "", "");
+        responseAuthorizationWithoutPass.then().statusCode(400);
 
-        login("hgrer56y", password, 404);
+        Response responseAuthorizationWithoutLogin =
+                courierAPI.loginCourier("", password, "");
+        responseAuthorizationWithoutLogin.then().statusCode(400);
+
+        Response responseAuthorizationWithWrongPassword =
+                courierAPI.loginCourier(login, "gdsft4353", "");
+        responseAuthorizationWithWrongPassword.then().statusCode(404);
+
+        Response responseAuthorizationWithWrongLogin =
+                courierAPI.loginCourier("hgrer56y", password, "");
+        responseAuthorizationWithWrongLogin.then().statusCode(404);
 
     }
 
-    private static CourierID login(String login, String password, int statusCode) {
-
-        String json = "{ \"login\": \"" + login + "\", \"password\": \"" + password + "\"}";
-
-
-        Response response = given()
-                .header("Content-type", "application/json")
-                .body(json)
-                .post(COURIER_LOGIN_PATH);
-
-        response
-                .then()
-                .statusCode(statusCode);
-
-        return response.body().as(CourierID.class);
+    @After
+    public void tearDown() {
+        courierAPI.deleteCourier(login, password, firstName);
     }
-
 
 }

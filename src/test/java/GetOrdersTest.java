@@ -1,21 +1,14 @@
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import sprint_7_classes.OrderList;
+import sprint_7_classes.OrderTrack;
 
 import static io.restassured.RestAssured.given;
 
-public class GetOrdersTest {
-
-    private String firstName = "Орочимару";
-    private String lastName = "Орочимарский";
-    private String address = "Пещера";
-    private String metroStation = "1";
-    private String phone = "8800111111";
-    private int rentTime = 3;
-    private String deliveryDate = "2025-03-08";
-    private String comment = "Pssss";
-    private String[] color = {"BLACK"};
+public class GetOrdersTest extends AbstractOrderData {
 
 
     @Before
@@ -26,19 +19,15 @@ public class GetOrdersTest {
     @Test
     public void getOrdersTest() {
 
-        Order order = new Order(firstName, lastName, address, metroStation,
+        Response response = orderAPI.creatingOrder(firstName, lastName, address, metroStation,
                 phone, rentTime, deliveryDate, comment, color);
-        //создание заказа
-        Response responseOrder =
-                given()
-                        .header("Content-type", "application/json")
-                        .body(order)
-                        .post("/api/v1/orders");
-        responseOrder
+
+        response
                 .then()
                 .statusCode(201);
 
-        OrderTrack orderTrack = responseOrder.body().as(OrderTrack.class);
+        orderTrack = response.body().as(OrderTrack.class);
+
         //получение созданного заказа
         given()
                 .header("Content-type", "application/json")
@@ -46,27 +35,22 @@ public class GetOrdersTest {
 
         //получение всех заказов
 
-        Response response = given()
+        Response responseAllOrders = given()
                 .header("Content-type", "application/json")
                 .get("/api/v1/orders");
 
-        response
+        responseAllOrders
                 .then()
                 .statusCode(200);
-
 
         response.body().as(OrderList.class);
+    }
 
+    @After
+    public void tearDown() {
+        Response responseCancel = orderAPI.cancelOrder(orderTrack);
 
-        //удаление заказа
-
-        given()
-                .header("Content-type", "application/json")
-                .body(orderTrack)
-                .put("/api/v1/orders/cancel?track=" + orderTrack.getTrack())
-                .then()
-                .statusCode(200);
-
+        responseCancel.then().statusCode(200);
     }
 
 }
