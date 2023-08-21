@@ -8,9 +8,13 @@ import sprint_7_classes.CourierID;
 
 import static org.junit.Assert.assertNotNull;
 
-public class LoginCourierTest extends AbstractCourierData {
+public class LoginCourierTest {
 
+    public final static String BASE_URI = "https://qa-scooter.praktikum-services.ru";
     private final CourierAPI courierAPI = new CourierAPI();
+    private final String login = "aboba";
+    private final String password = "1234";
+    private final String firstName = "amogus";
 
     @Before
     public void setUp() {

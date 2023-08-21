@@ -16,6 +16,18 @@ public class OrderAPI {
                 .post("/api/v1/orders");
     }
 
+    public Response getOrder (OrderTrack orderTrack) {
+        return given()
+                .header("Content-type", "application/json")
+                .get("/api/v1/orders?t=" + orderTrack.getTrack());
+    }
+
+    public Response getAllOrders () {
+        return given()
+                .header("Content-type", "application/json")
+                .get("/api/v1/orders");
+    }
+
     public Response cancelOrder (OrderTrack orderTrack) {
         return given()
                 .header("Content-type", "application/json")

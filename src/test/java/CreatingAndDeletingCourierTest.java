@@ -7,9 +7,13 @@ import sprint_7_classes.CourierAPI;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class CreatingAndDeletingCourierTest extends AbstractCourierData {
+public class CreatingAndDeletingCourierTest {
 
+    public final static String BASE_URI = "https://qa-scooter.praktikum-services.ru";
     private final CourierAPI courierAPI = new CourierAPI();
+    private final String login = "aboba";
+    private final String password = "1234";
+    private final String firstName = "amogus";
 
     @Before
     public void setUp() {

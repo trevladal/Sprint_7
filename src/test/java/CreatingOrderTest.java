@@ -12,7 +12,8 @@ import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(Parameterized.class)
-public class CreatingOrderTest extends AbstractCourierData {
+public class CreatingOrderTest {
+    public final static String BASE_URI = "https://qa-scooter.praktikum-services.ru";
     private final String firstName;
     private final String lastName;
     private final String address;
@@ -25,6 +26,7 @@ public class CreatingOrderTest extends AbstractCourierData {
     private static final String[] blackColor = {"BLACK"};
     private static final String[] greyColor = {"GRAY"};
     private static final String[] twoColor = {"BLACK", "GRAY"};
+
     private OrderTrack orderTrack;
     private final OrderAPI orderAPI = new OrderAPI();
 
@@ -74,9 +76,7 @@ public class CreatingOrderTest extends AbstractCourierData {
 
         orderTrack = response.body().as(OrderTrack.class);
 
-        given()
-                .header("Content-type", "application/json")
-                .get("/api/v1/orders?t=" + orderTrack.getTrack()).then().statusCode(200);
+        orderAPI.getOrder(orderTrack).then().statusCode(200);
 
         assertNotNull(orderTrack.getTrack());
 
