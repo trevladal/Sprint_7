@@ -16,4 +16,12 @@ public class OrderList {
     public void setOrders(List<Order> orders) {
         this.orders = orders;
     }
+
+    public boolean isNotEmpty() {
+        if (orders.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

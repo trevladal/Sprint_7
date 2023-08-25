@@ -1,3 +1,6 @@
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -6,11 +9,10 @@ import org.junit.Test;
 import sprint_7_classes.OrderAPI;
 import sprint_7_classes.OrderList;
 import sprint_7_classes.OrderTrack;
-
-import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class GetOrdersTest {
-
 
     private final  OrderAPI orderAPI = new OrderAPI();
     private final String firstName = "Орочимару";
@@ -29,35 +31,66 @@ public class GetOrdersTest {
     }
 
     @Test
+    @DisplayName("Get orders")
+    @Description("Check that the order and the list of orders are returned and not empty")
     public void getOrdersTest() {
 
-        Response response = orderAPI.creatingOrder(firstName, lastName, address, metroStation,
-                phone, rentTime, deliveryDate, comment, color);
+        Response response = createOrder();
 
         response
                 .then()
                 .statusCode(201);
 
-        orderTrack = response.body().as(OrderTrack.class);
+        orderTrack = getOrderTrack(response);
 
-        orderAPI.getOrder(orderTrack).then().statusCode(200);
+        getOrder()
+                .then()
+                .statusCode(200);
 
-        //получение всех заказов
-
-        Response responseAllOrders = orderAPI.getAllOrders();
+        Response responseAllOrders = getAllOrders();
 
         responseAllOrders
                 .then()
                 .statusCode(200);
 
-        response.body().as(OrderList.class);
+        OrderList orders = getOrdersAsOrderList(responseAllOrders);
+        assertThat(orders.isNotEmpty(), is(true));
+
+    }
+
+    @Step("Get all orders as OrderList object")
+    private static OrderList getOrdersAsOrderList(Response responseAllOrders) {
+        return responseAllOrders.body().as(OrderList.class);
+    }
+
+    @Step("Get all orders")
+    private Response getAllOrders() {
+        return orderAPI.getAllOrders();
+    }
+
+    @Step("Get order")
+    private Response getOrder() {
+        return orderAPI.getOrder(orderTrack);
+    }
+
+    @Step("Get order track")
+    private static OrderTrack getOrderTrack(Response response) {
+        return response.body().as(OrderTrack.class);
+    }
+
+    @Step("Creating order")
+    private Response createOrder() {
+        return orderAPI.creatingOrder(firstName, lastName, address, metroStation,
+                phone, rentTime, deliveryDate, comment, color);
     }
 
     @After
     public void tearDown() {
         Response responseCancel = orderAPI.cancelOrder(orderTrack);
 
-        responseCancel.then().statusCode(200);
+        responseCancel
+                .then()
+                .statusCode(200);
     }
 
 }

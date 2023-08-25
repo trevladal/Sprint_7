@@ -1,3 +1,6 @@
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -23,38 +26,45 @@ public class LoginCourierTest {
     }
 
     @Test
+    @DisplayName("Check successful courier authorization")
+    @Description("Checking that the courier can log in and ID not empty")
     public void checkSuccessfulCourierAuthorization() {
 
-        courierAPI.creatingCourier(login, password, firstName);
+        createCourier();
 
-        Response response = courierAPI.loginCourier(login, password, firstName);
+        Response response = authorization(login, password, 200);
         CourierID courierID = response.body().as(CourierID.class);
         assertNotNull(courierID.getId());
 
     }
 
     @Test
+    @DisplayName("Check failure courier authorization")
+    @Description("Checking that the courier cannot enter with incorrect and empty data")
     public void checkFailureCourierAuthorization() {
 
+        createCourier();
 
+        authorization(login, "", 400);
+
+        authorization("", password, 400);
+
+        authorization(login, "gdsft4353", 404);
+
+        authorization("hgrer56y", password, 404);
+
+    }
+    @Step("Authorization courier")
+    private Response authorization(String login, String password, int statusCode) {
+        Response responseAuthorization =
+                courierAPI.loginCourier(login, password, "");
+        responseAuthorization.then().statusCode(statusCode);
+        return responseAuthorization;
+    }
+
+    @Step("Creating courier")
+    private void createCourier() {
         courierAPI.creatingCourier(login, password, firstName);
-
-        Response responseAuthorizationWithoutPass =
-                courierAPI.loginCourier(login, "", "");
-        responseAuthorizationWithoutPass.then().statusCode(400);
-
-        Response responseAuthorizationWithoutLogin =
-                courierAPI.loginCourier("", password, "");
-        responseAuthorizationWithoutLogin.then().statusCode(400);
-
-        Response responseAuthorizationWithWrongPassword =
-                courierAPI.loginCourier(login, "gdsft4353", "");
-        responseAuthorizationWithWrongPassword.then().statusCode(404);
-
-        Response responseAuthorizationWithWrongLogin =
-                courierAPI.loginCourier("hgrer56y", password, "");
-        responseAuthorizationWithWrongLogin.then().statusCode(404);
-
     }
 
     @After

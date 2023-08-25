@@ -1,3 +1,6 @@
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -22,9 +25,11 @@ public class CreatingAndDeletingCourierTest {
     }
 
     @Test
+    @DisplayName("Successful creating courier")
+    @Description("Verifying successful courier creation")
     public void checkSuccessfulCreatingCourier() {
 
-        Response response = courierAPI.creatingCourier(login, password, firstName);
+        Response response = creatingCourier();
 
         response
                 .then()
@@ -33,15 +38,17 @@ public class CreatingAndDeletingCourierTest {
     }
 
     @Test
+    @DisplayName("Check conflict username")
+    @Description("Checking for username conflict when creating a courier")
     public void checkConflictUserName() {
 
-        Response responseNewCourier = courierAPI.creatingCourier(login, password, firstName);
+        Response responseNewCourier = creatingCourier();
 
         responseNewCourier
                 .then()
                 .statusCode(201);
 
-        Response responseFailureRecreatingCourier = courierAPI.creatingCourier(login, password, firstName);
+        Response responseFailureRecreatingCourier = creatingCourier();
 
         responseFailureRecreatingCourier
                 .then()
@@ -49,10 +56,17 @@ public class CreatingAndDeletingCourierTest {
     }
 
     @Test
+    @DisplayName("Deleting courier")
+    @Description("Verifying successful removal of the courier")
     public void deletingCourier() {
-        courierAPI.creatingCourier(login, password, firstName);
+        creatingCourier();
 
         courierAPI.deleteCourier(login, password, firstName).then().statusCode(200);
+    }
+
+    @Step("Creating courier")
+    private Response creatingCourier() {
+        return courierAPI.creatingCourier(login, password, firstName);
     }
 
     @After

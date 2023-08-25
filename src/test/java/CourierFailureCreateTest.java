@@ -1,3 +1,6 @@
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Before;
@@ -17,9 +20,11 @@ public class CourierFailureCreateTest {
     }
 
     @Test
+    @DisplayName("Creating courier without password")
+    @Description("Checking for failure when creating a courier without a password")
     public void checkFailureCreatingCourierWithoutPass() {
 
-        Response responseNewCourierWithoutPass = courierAPI.creatingCourier(login, "", firstName);
+        Response responseNewCourierWithoutPass = createCourier(login, "", firstName);
 
         responseNewCourierWithoutPass
                 .then()
@@ -27,14 +32,20 @@ public class CourierFailureCreateTest {
     }
 
     @Test
+    @DisplayName("Creating courier without login")
+    @Description("Checking for failure when creating a courier without a login")
     public void checkFailureCreatingCourierWithoutLogin() {
 
-        Response responseNewCourierWithoutLogin = courierAPI.creatingCourier("", password, firstName);
+        Response responseNewCourierWithoutLogin = createCourier("", password, firstName);
 
         responseNewCourierWithoutLogin
                 .then()
                 .statusCode(400);
     }
 
+    @Step("Creating courier")
+    private Response createCourier(String login, String password, String firstName) {
+        return courierAPI.creatingCourier(login, password, firstName);
+    }
 }
 

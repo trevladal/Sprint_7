@@ -1,3 +1,6 @@
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -8,7 +11,6 @@ import org.junit.runners.Parameterized;
 import sprint_7_classes.OrderAPI;
 import sprint_7_classes.OrderTrack;
 
-import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(Parameterized.class)
@@ -65,21 +67,37 @@ public class CreatingOrderTest {
     }
 
     @Test
+    @DisplayName("Creating order")
+    @Description("Checking for successful creation order and order track not null")
     public void creatingOrderTest() {
 
-        Response response = orderAPI.creatingOrder(firstName, lastName, address, metroStation,
-                phone, rentTime, deliveryDate, comment, color);
+        Response response = createOrder();
 
         response
                 .then()
                 .statusCode(201);
 
-        orderTrack = response.body().as(OrderTrack.class);
+        orderTrack = getOrderTrack(response);
 
-        orderAPI.getOrder(orderTrack).then().statusCode(200);
+        getCreatedOrder().then().statusCode(200);
 
         assertNotNull(orderTrack.getTrack());
 
+    }
+    @Step("Get created order")
+    private Response getCreatedOrder() {
+        return orderAPI.getOrder(orderTrack);
+    }
+
+    @Step("Get order track")
+    private static OrderTrack getOrderTrack(Response response) {
+        return response.body().as(OrderTrack.class);
+    }
+
+    @Step("Create order")
+    private Response createOrder() {
+        return orderAPI.creatingOrder(firstName, lastName, address, metroStation,
+                phone, rentTime, deliveryDate, comment, color);
     }
 
     @After
